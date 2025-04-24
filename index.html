@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Contador de Sí y No</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    .contador { font-size: 24px; margin: 20px; }
+    button { padding: 10px 20px; font-size: 18px; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Contador de Sí y No</h1>
+  <div class="contador">"Sí": <span id="siCount">0</span></div>
+  <div class="contador">"No": <span id="noCount">0</span></div>
+
+  <button onclick="iniciarReconocimiento()">Comenzar</button>
+  <button onclick="detenerReconocimiento()">Detener</button>
+
+  <script>
+    let siCount = 0;
+    let noCount = 0;
+    let reconocimiento;
+
+    function iniciarReconocimiento() {
+      if (!reconocimiento) {
+        reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        reconocimiento.lang = 'es-ES';
+        reconocimiento.continuous = true;
+        reconocimiento.interimResults = false;
+
+        reconocimiento.onresult = function(event) {
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              const palabra = event.results[i][0].transcript.trim().toLowerCase();
+              if (palabra === "sí" || palabra === "si") {
+                siCount++;
+                document.getElementById("siCount").textContent = siCount;
+              } else if (palabra === "no") {
+                noCount++;
+                document.getElementById("noCount").textContent = noCount;
+              }
+            }
+          }
+        };
+
+        reconocimiento.onerror = function(e) {
+          console.error("Error de reconocimiento:", e.error);
+        };
+      }
+
+      reconocimiento.start();
+    }
+
+    function detenerReconocimiento() {
+      if (reconocimiento) {
+        reconocimiento.stop();
+      }
+    }
+  </script>
+</body>
+</html>
