@@ -9,6 +9,7 @@
     <h1>Contador de Sí y No</h1>
     <button id="startBtn">Iniciar</button>
     <button id="stopBtn" disabled>Detener</button>
+    <button id= "resetButton">Reset</button>
     <div>
         <p>Sí: <span id="siCount">0</span></p>
         <p>No: <span id="noCount">0</span></p>
@@ -58,6 +59,26 @@
             recognition.stop();
             document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
+        });
+
+        //Función para reiniciar el contador
+        document.getElementById('resetButton').addEventListener('click', () => {
+        // Si el reconocimiento de voz está activo, lo detenemos
+        if (recognition && recognizing) {
+            recognition.stop();
+            recognizing = false;
+        }
+
+        // Reiniciamos los contadores
+        siCount = 0;
+        noCount = 0;
+
+        // Actualizamos los elementos del DOM
+        document.getElementById('siCount').textContent = '0';
+        document.getElementById('noCount').textContent = '0';
+
+        // Si tienes alguna clase o estado visual para mostrar que se ha detenido, podrías limpiarlo aquí también
+        console.log('Contadores y reconocimiento reiniciados.');
         });
     </script>
 </body>
