@@ -21,7 +21,8 @@
         let recognition;
         let recognizing = false;  // Estado del reconocimiento
         let lastTranscript = "";  // Variable para almacenar la última transcripción
-        
+        let lastTimestamp = 0;    // Para verificar el tiempo entre transcripciones
+
         // Verificar si SpeechRecognition está disponible
         if (!('webkitSpeechRecognition' in window)) {
             alert("Tu navegador no soporta reconocimiento de voz.");
@@ -34,17 +35,24 @@
             recognition.onresult = function(event) {
                 let result = event.results[event.resultIndex];
                 let transcript = result[0].transcript.trim().toLowerCase(); // Capturamos el texto dicho
+                let timestamp = event.timeStamp;  // Capturamos la hora del evento
 
-                // Verificamos si la transcripción es diferente a la última
-                if (transcript !== lastTranscript) {
-                    lastTranscript = transcript;  // Actualizamos la última transcripción
-                    
-                    if (transcript.includes('sí')) {
-                        siCount++;
-                        document.getElementById("siCount").textContent = siCount;
-                    } else if (transcript.includes('no')) {
-                        noCount++;
-                        document.getElementById("noCount").textContent = noCount;
+                // Solo procesar si han pasado más de 1 segundo desde la última transcripción
+                if (timestamp - lastTimestamp > 1000) {
+                    lastTimestamp = timestamp;  // Actualizamos el último timestamp
+
+                    // Verificamos si la transcripción es diferente a la última
+                    if (transcript !== lastTranscript) {
+                        lastTranscript = transcript;  // Actualizamos la última transcripción
+                        
+                        // Revisamos las palabras "sí" y "no"
+                        if (transcript.includes('sí')) {
+                            siCount++;
+                            document.getElementById("siCount").textContent = siCount;
+                        } else if (transcript.includes('no')) {
+                            noCount++;
+                            document.getElementById("noCount").textContent = noCount;
+                        }
                     }
                 }
             };
