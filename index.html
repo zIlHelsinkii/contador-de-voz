@@ -1,62 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Contador de Sí y No</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-    .contador { font-size: 24px; margin: 20px; }
-    button { padding: 10px 20px; font-size: 18px; margin: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Sí y No</title>
 </head>
 <body>
-  <h1>Contador de Sí y No</h1>
-  <div class="contador">"Sí": <span id="siCount">0</span></div>
-  <div class="contador">"No": <span id="noCount">0</span></div>
+    <h1>Contador de Sí y No</h1>
+    <button id="startBtn">Iniciar</button>
+    <button id="stopBtn" disabled>Detener</button>
+    <div>
+        <p>Sí: <span id="siCount">0</span></p>
+        <p>No: <span id="noCount">0</span></p>
+    </div>
 
-  <button onclick="iniciarReconocimiento()">Comenzar</button>
-  <button onclick="detenerReconocimiento()">Detener</button>
+    <script>
+        let siCount = 0;
+        let noCount = 0;
+        let recognition;
+        
+        // Verificar si SpeechRecognition está disponible
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("Tu navegador no soporta reconocimiento de voz.");
+        } else {
+            recognition = new webkitSpeechRecognition();
+            recognition.lang = 'es-ES'; // Idioma Español
+            recognition.continuous = true; // Reconocer múltiples frases
+            recognition.interimResults = true; // Resultados parciales
 
-  <script>
-    let siCount = 0;
-    let noCount = 0;
-    let reconocimiento;
+            recognition.onresult = function(event) {
+                let result = event.results[event.resultIndex];
+                let transcript = result[0].transcript.trim().toLowerCase(); // Capturamos el texto dicho
 
-    function iniciarReconocimiento() {
-      if (!reconocimiento) {
-        reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        reconocimiento.lang = 'es-ES';
-        reconocimiento.continuous = true;
-        reconocimiento.interimResults = false;
+                if (transcript.includes('sí')) {
+                    siCount++;
+                    document.getElementById("siCount").textContent = siCount;
+                } else if (transcript.includes('no')) {
+                    noCount++;
+                    document.getElementById("noCount").textContent = noCount;
+                }
+            };
 
-        reconocimiento.onresult = function(event) {
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-              const palabra = event.results[i][0].transcript.trim().toLowerCase();
-              if (palabra === "sí" || palabra === "si") {
-                siCount++;
-                document.getElementById("siCount").textContent = siCount;
-              } else if (palabra === "no") {
-                noCount++;
-                document.getElementById("noCount").textContent = noCount;
-              }
-            }
-          }
-        };
+            recognition.onerror = function(event) {
+                console.error("Error en el reconocimiento de voz:", event.error);
+            };
+        }
 
-        reconocimiento.onerror = function(e) {
-          console.error("Error de reconocimiento:", e.error);
-        };
-      }
+        // Función para iniciar el reconocimiento
+        document.getElementById('startBtn').addEventListener('click', function() {
+            recognition.start();
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+        });
 
-      reconocimiento.start();
-    }
-
-    function detenerReconocimiento() {
-      if (reconocimiento) {
-        reconocimiento.stop();
-      }
-    }
-  </script>
+        // Función para detener el reconocimiento
+        document.getElementById('stopBtn').addEventListener('click', function() {
+            recognition.stop();
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+        });
+    </script>
 </body>
 </html>
